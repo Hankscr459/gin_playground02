@@ -1,6 +1,7 @@
 package main
 
 import (
+	controller "ginValid/controller"
 	validService "ginValid/extension"
 	valid "ginValid/middleware"
 	models "ginValid/models"
@@ -15,13 +16,13 @@ func main() {
 	validService.Valid()
 	route.GET("/time", valid.DateValidator(), getTime)
 	route.POST("/user/create", valid.SignupValidator(), create)
+	route.GET("/export/excel", controller.Employee)
 	route.Run(":8080")
 }
 
 func create(c *gin.Context) {
 	var user models.User
 	c.ShouldBindBodyWith(&user, binding.JSON)
-	user.Age = 22
 	c.JSON(http.StatusBadRequest, user)
 }
 
