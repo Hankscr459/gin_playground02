@@ -1,4 +1,4 @@
-package employee
+package export
 
 type Employee struct {
 	Id         string `json:"id"`

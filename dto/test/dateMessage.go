@@ -1,4 +1,4 @@
-package dateMessage
+package test
 
 // type DateBetween struct {
 // 	CreateTime time.Time `form:"create_time" binding:"required,timing" time_format:"2006-01-02" label:"起始日期"`

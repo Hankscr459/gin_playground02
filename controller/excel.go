@@ -1,4 +1,4 @@
-package excel
+package controller
 
 import (
 	export "ginValid/dto/export"
@@ -27,8 +27,9 @@ func Employee(c *gin.Context) {
 	list = append(list, *employee)
 	index = 1
 	for _, e := range list {
+		strIndex := strconv.Itoa(index)
 		values := map[string]interface{}{
-			"A" + strconv.Itoa(index): e.Id, "B" + strconv.Itoa(index): e.Department, "C" + strconv.Itoa(index): e.Name}
+			"A" + strIndex: e.Id, "B" + strIndex: e.Department, "C" + strIndex: e.Name}
 		for k, v := range values {
 			f.SetCellValue("Sheet1", k, v)
 		}

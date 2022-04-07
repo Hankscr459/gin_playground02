@@ -2,9 +2,16 @@ package main
 
 import (
 	controller "ginValid/controller"
-	validService "ginValid/extension"
+	"os"
+
+	db "ginValid/extension"
+	vaildService "ginValid/extension"
 	valid "ginValid/middleware"
 	models "ginValid/models"
+
+	_ "github.com/joho/godotenv/autoload"
+
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,11 +20,16 @@ import (
 
 func main() {
 	route := gin.Default()
-	validService.Valid()
+	vaildService.Valid()
+	if db.CheckConnection() == 0 {
+		log.Fatal("Sin connect a la DB")
+		return
+	}
+
 	route.GET("/time", valid.DateValidator(), getTime)
 	route.POST("/user/create", valid.SignupValidator(), create)
 	route.GET("/export/excel", controller.Employee)
-	route.Run(":8080")
+	route.Run(os.Getenv("PORT"))
 }
 
 func create(c *gin.Context) {

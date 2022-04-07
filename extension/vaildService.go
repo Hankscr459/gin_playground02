@@ -1,4 +1,4 @@
-package validService
+package extension
 
 import (
 	"fmt"
