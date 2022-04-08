@@ -10,6 +10,7 @@ import (
 	"os"
 
 	_ "github.com/joho/godotenv/autoload"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -37,6 +38,18 @@ func ConnectDb() c.UserController {
 	}
 	fmt.Println("mongo connection establish")
 	usercollection = mongoclient.Database("userdb").Collection("users")
+	for _, f := range []string{"name"} {
+		_, err := usercollection.Indexes().CreateOne(
+			context.Background(),
+			mongo.IndexModel{
+				Keys:    bson.D{{Key: f, Value: 1}},
+				Options: options.Index().SetUnique(true),
+			},
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 	userservice = implement.NewUserService(usercollection, ctx)
 	usercontroller = c.New(userservice)
 	return usercontroller
