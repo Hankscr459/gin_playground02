@@ -44,8 +44,19 @@ func (uc *UserController) GetUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
+func (uc *UserController) GetUserById(ctx *gin.Context) {
+	userId := ctx.Param("userId")
+	user, err := uc.UserService.GetUserById(&userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, user)
+}
+
 func (uc *UserController) RegisterUserRoutes(rg *gin.RouterGroup) {
 	userroute := rg.Group("/user")
 	userroute.POST("/create", valid.SignupValidator(), uc.CreateUser)
+	userroute.GET("/:userId", uc.GetUserById)
 	userroute.GET("/get/:name", uc.GetUser)
 }
