@@ -2,37 +2,46 @@ package extension
 
 import (
 	"context"
+	"fmt"
+	c "ginValid/controller"
+	"ginValid/implement"
+	"ginValid/service"
 	"log"
 	"os"
 
 	_ "github.com/joho/godotenv/autoload"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-var clientOptions = options.Client().ApplyURI(os.Getenv("MongoApplyURI"))
-var MongoCN = connectDb()
+var (
+	userservice    service.UserService
+	usercontroller c.UserController
+	ctx            context.Context
+	usercollection *mongo.Collection
+	mongoclient    *mongo.Client
+	err            error
+)
 
-func connectDb() *mongo.Client {
-	client, err := mongo.Connect(context.TODO(), clientOptions)
-	if err != nil {
-		log.Fatal(err.Error())
-		return client
-	}
-	err = client.Ping(context.TODO(), nil)
-	if err != nil {
-		log.Fatal(err.Error())
-		return client
-	}
-	log.Println("Success to connect DB")
-	return client
-}
-
-func CheckConnection() int {
-	err := MongoCN.Ping(context.TODO(), nil)
+func ConnectDb() c.UserController {
+	ctx = context.TODO()
+	mongoconn := options.Client().ApplyURI(os.Getenv("MongoApplyURI"))
+	mongoclient, err = mongo.Connect(ctx, mongoconn)
 	if err != nil {
 		log.Fatal(err)
-		return 0
 	}
-	return 1
+	err = mongoclient.Ping(ctx, readpref.Primary())
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("mongo connection establish")
+	usercollection = mongoclient.Database("userdb").Collection("users")
+	userservice = implement.NewUserService(usercollection, ctx)
+	usercontroller = c.New(userservice)
+	return usercontroller
+}
+
+func Disconnect() {
+	mongoclient.Disconnect(ctx)
 }
