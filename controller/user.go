@@ -1,6 +1,7 @@
 package controller
 
 import (
+	implement "ginValid/implement"
 	valid "ginValid/middleware"
 	models "ginValid/models"
 	"ginValid/service"
@@ -26,6 +27,7 @@ func (uc *UserController) CreateUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
+	user.Password, _ = implement.EncriptPassword(user.Password)
 	err := uc.UserService.CreateUser(&user)
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
