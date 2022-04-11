@@ -46,8 +46,13 @@ func (u *UserServiceImpl) GetUserById(id *string) (*user.Read, error) {
 	return user, err
 }
 
-// convert id string to ObjectId .FindId(bson.M{"_id": bson.ObjectIdHex("56bdd27ecfa93bfe3d35047d")})
-// objectId, err := primitive.ObjectIDFromHex("5b9223c86486b341ea76910c")
-// if err != nil{
-//     log.Println("Invalid id")
-// }
+func (u *UserServiceImpl) UpdateUser(update *user.Update, userId *string) error {
+	objID, idErr := primitive.ObjectIDFromHex(*userId)
+	if idErr != nil {
+		return idErr
+	}
+	query := bson.M{"_id": bson.M{"$eq": objID}}
+	modify := bson.M{"$set": bson.M{"name": update.Name, "email": update.Email, "first_name": update.FirstName, "last_name": update.LastName, "age": update.Age}}
+	res := u.usercollection.FindOneAndUpdate(u.ctx, query, modify)
+	return res.Err()
+}

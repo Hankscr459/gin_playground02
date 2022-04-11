@@ -9,4 +9,5 @@ type UserService interface {
 	CreateUser(*models.User) error
 	GetUser(*string) (*user.Read, error)
 	GetUserById(*string) (*user.Read, error)
+	UpdateUser(*user.Update, *string) error
 }
