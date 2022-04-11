@@ -38,7 +38,7 @@ func ConnectDb() c.UserController {
 	}
 	fmt.Println("mongo connection establish")
 	usercollection = mongoclient.Database("userdb").Collection("users")
-	for _, f := range []string{"name"} {
+	for _, f := range []string{"name", "email"} {
 		_, err := usercollection.Indexes().CreateOne(
 			context.Background(),
 			mongo.IndexModel{

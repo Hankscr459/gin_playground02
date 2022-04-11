@@ -29,8 +29,7 @@ func (uc *UserController) CreateUser(ctx *gin.Context) {
 	}
 	user.Password, _ = implement.EncriptPassword(user.Password)
 	err := uc.UserService.CreateUser(&user)
-	if err != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+	if dbErr := implement.ValidDbError(err, ctx); dbErr {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "success"})
