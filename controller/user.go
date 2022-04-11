@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	implement "ginValid/implement"
 	valid "ginValid/middleware"
 	models "ginValid/models"
@@ -38,8 +39,14 @@ func (uc *UserController) CreateUser(ctx *gin.Context) {
 func (uc *UserController) GetUser(ctx *gin.Context) {
 	username := ctx.Param("name")
 	user, err := uc.UserService.GetUser(&username)
+	if err != nil && err.Error() == "mongo: no documents in result" {
+		ctx.JSON(http.StatusNotFound, gin.H{"message": "此會員不存在"})
+		fmt.Println("runnning3")
+		return
+	}
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+		fmt.Println("runnning2")
 		return
 	}
 	ctx.JSON(http.StatusOK, user)
@@ -48,10 +55,18 @@ func (uc *UserController) GetUser(ctx *gin.Context) {
 func (uc *UserController) GetUserById(ctx *gin.Context) {
 	userId := ctx.Param("userId")
 	user, err := uc.UserService.GetUserById(&userId)
-	if err != nil {
-		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+	fmt.Println(user)
+	if err != nil && err.Error() == "mongo: no documents in result" {
+		ctx.JSON(http.StatusNotFound, gin.H{"message": "此會員不存在"})
+		fmt.Println("runnning3")
 		return
 	}
+	if err != nil {
+		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
+		fmt.Println("runnning2")
+		return
+	}
+
 	ctx.JSON(http.StatusOK, user)
 }
 
