@@ -1,6 +1,9 @@
 package user
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"github.com/dgrijalva/jwt-go"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type Read struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty" json:"_id"`
@@ -18,4 +21,11 @@ type Update struct {
 	LastName  string `binding:"required" label:"名稱2" json:"last_name" bson:"last_name"`
 	Age       uint8  `binding:"gte=0,lte=130" label:"年齡" json:"age" bson:"age"`
 	Email     string `binding:"required" label:"電子郵件" json:"email" bson:"email"`
+}
+
+type Cliam struct {
+	Email string             `json:"email"`
+	ID    primitive.ObjectID `bson:"_id" json:"_id,omitempty"`
+	Name  string             `json:"name"`
+	jwt.StandardClaims
 }
