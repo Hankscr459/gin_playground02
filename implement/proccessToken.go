@@ -52,7 +52,7 @@ func ProccessToken(tk string) (*user.Cliam, bool, string, error) {
 		return secret, nil
 	})
 	if err == nil {
-		find, _ := u.UserService.GetUser(&claims.Name)
+		find, _ := u.UserService.GetUserByEmail(&claims.Email)
 		if find != nil {
 			Email = claims.Email
 			IDUser = claims.ID.Hex()

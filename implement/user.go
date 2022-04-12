@@ -23,9 +23,9 @@ func NewUserService(usercollection *mongo.Collection, ctx context.Context) servi
 	}
 }
 
-func (u *UserServiceImpl) CreateUser(user *models.User) error {
-	_, err := u.usercollection.InsertOne(u.ctx, user)
-	return err
+func (u *UserServiceImpl) CreateUser(user *models.User) (*mongo.InsertOneResult, error) {
+	create, err := u.usercollection.InsertOne(u.ctx, user)
+	return create, err
 }
 
 func (u *UserServiceImpl) GetUser(name *string) (*user.Read, error) {
@@ -42,6 +42,13 @@ func (u *UserServiceImpl) GetUserById(id *string) (*user.Read, error) {
 		return nil, idErr
 	}
 	query := bson.M{"_id": bson.M{"$eq": objID}}
+	err := u.usercollection.FindOne(u.ctx, query).Decode(&user)
+	return user, err
+}
+
+func (u *UserServiceImpl) GetUserByEmail(email *string) (*user.Read, error) {
+	var user *user.Read
+	query := bson.D{bson.E{Key: "email", Value: email}}
 	err := u.usercollection.FindOne(u.ctx, query).Decode(&user)
 	return user, err
 }

@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/jinzhu/copier"
 )
 
 type UserController struct {
@@ -24,17 +25,21 @@ func New(userservice service.UserService) UserController {
 }
 
 func (uc *UserController) CreateUser(ctx *gin.Context) {
-	var user models.User
-	if err := ctx.ShouldBindBodyWith(&user, binding.JSON); err != nil {
+	var body models.User
+	var read user.Read
+	if err := ctx.ShouldBindBodyWith(&body, binding.JSON); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-	user.Password, _ = implement.EncriptPassword(user.Password)
-	err := uc.UserService.CreateUser(&user)
+	body.Password, _ = implement.EncriptPassword(body.Password)
+	create, err := uc.UserService.CreateUser(&body)
 	if dbErr := implement.ValidDbError(err, ctx); dbErr {
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "success"})
+	copier.Copy(read, &create)
+	tk, err := implement.GenerJWT(read)
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "success", "token": tk})
 }
 
 func (uc *UserController) GetUser(ctx *gin.Context) {
@@ -57,12 +62,10 @@ func (uc *UserController) GetUserById(ctx *gin.Context) {
 	fmt.Println(user)
 	if err != nil && err.Error() == "mongo: no documents in result" {
 		ctx.JSON(http.StatusNotFound, gin.H{"message": "此會員不存在"})
-		fmt.Println("runnning3")
 		return
 	}
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
-		fmt.Println("runnning2")
 		return
 	}
 
@@ -79,12 +82,10 @@ func (uc *UserController) UpdateUser(ctx *gin.Context) {
 	err := uc.UserService.UpdateUser(&update, &userId)
 	if err != nil && err.Error() == "mongo: no documents in result" {
 		ctx.JSON(http.StatusNotFound, gin.H{"message": "此會員不存在"})
-		fmt.Println("runnning3")
 		return
 	}
 	if err != nil {
 		ctx.JSON(http.StatusBadGateway, gin.H{"message": err.Error()})
-		fmt.Println("runnning2")
 		return
 	}
 
